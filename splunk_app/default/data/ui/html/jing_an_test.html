@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head id="head" >
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" href="/en-US/static/@0FDA61F8E7248F592C75538D12A5FF9F088A307340B2B620DB93F7D786D8C39B/img/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/build/css/bootstrap-enterprise.css" />
+    <link rel="stylesheet" type="text/css" href="{{SPLUNKWEB_URL_PREFIX}}/static/css/build/pages/dashboard-simple-bootstrap.min.css" />
+
+
+        <meta name="referrer" content="never" />
+        <meta name="referrer" content="no-referrer" />
+    
+          <script>
+                window._splunk_metrics_events = {
+                   push : function() {},
+                   active: false,
+                   }
+          </script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+		#allmap {position: absolute;
+                margin-top:30px; 
+                width: 900px; 
+                height: 600px;
+                top: 50; 
+                border: 1px solid gray;
+                overflow:hidden;}
+        img { 
+                max-width: inherit; 
+            }
+	</style>
+	<script id="baidu" type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&amp;ak=AYKQq6RpbbOlBAtCXNVskdhP7MRYltmI"></script>
+	<title>根据城市名设置地图中心点</title>
+    </head>
+<body class="simplexml preload locale-en" data-splunk-version="7.0.3" data-splunk-product="splunk">
+<!-- 
+BEGIN LAYOUT
+This section contains the layout for the dashboard. Splunk uses proprietary
+styles in <div> tags, similar to Bootstrap's grid system. 
+-->
+<header>
+    <a class="navSkip" href="#navSkip" tabindex="1">Screen reader users, click here to skip the navigation bar</a>
+    <div class="header splunk-header">
+            <div id="placeholder-splunk-bar">
+                <a href="{{SPLUNKWEB_URL_PREFIX}}/app/launcher/home" class="brand" title="splunk &gt; listen to your data">splunk<strong>&gt;</strong></a>
+            </div>
+                <div id="placeholder-app-bar"></div>
+    </div>
+    <a id="navSkip"></a>
+</header>
+<div class="dashboard-body container-fluid main-section-body" data-role="main">
+    <div class="dashboard-header clearfix">
+        <h2>地图</h2>
+    </div>
+    <br/>
+    <div id="row1" class="dashboard-row dashboard-row1">
+        <div id="panel1" class="dashboard-cell" style="width: 100%;height: 800px;">
+            <div class="dashboard-panel clearfix">
+                <h2 class="panel-title">Map</h2>
+                
+                <div class="panel-element-row">
+                    <div id="element1" class="dashboard-element chart" style="width: 100%;height: 750px;">
+                        <!-- <div class="panel-head">
+                            <h3>杨浦</h3>
+                        </div> -->
+                        <div style="width:900px;margin:auto;">
+                            要查询的地址：<input id="text_" type="text" value="" style="margin-right:100px;"/>
+                            <!-- 查询结果(经纬度)：<input id="result_" type="text" /> -->
+                            <button type="button" id="btn1" class="btn btn-primary">查询</button>
+                            <p id="message"></p>
+                            <div id="allmap"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 
+END LAYOUT
+-->
+
+<script src="{{SPLUNKWEB_URL_PREFIX}}/config?autoload=1" crossorigin="use-credentials"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/js/i18n.js"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/i18ncatalog?autoload=1"></script>
+<script src="{{SPLUNKWEB_URL_PREFIX}}/static/build/simplexml/index.js"></script>
+<script type="text/javascript">
+// <![CDATA[
+// <![CDATA[
+//
+// LIBRARY REQUIREMENTS
+//
+// In the require function, we include the necessary libraries and modules for
+// the HTML dashboard. Then, we pass variable names for these libraries and
+// modules as function parameters, in order.
+// 
+// When you add libraries or modules, remember to retain this mapping order
+// between the library or module and its function parameter. You can do this by
+// adding to the end of these lists, as shown in the commented examples below.
+
+require([
+    "splunkjs/mvc",
+    "splunkjs/mvc/utils",
+    "splunkjs/mvc/tokenutils",
+    "underscore",
+    "jquery",
+    "splunkjs/mvc/simplexml",
+    "splunkjs/mvc/layoutview",
+    "splunkjs/mvc/simplexml/dashboardview",
+    "splunkjs/mvc/simplexml/dashboard/panelref",
+    "splunkjs/mvc/simplexml/element/chart",
+    "splunkjs/mvc/simplexml/element/event",
+    "splunkjs/mvc/simplexml/element/html",
+    "splunkjs/mvc/simplexml/element/list",
+    "splunkjs/mvc/simplexml/element/map",
+    "splunkjs/mvc/simplexml/element/single",
+    "splunkjs/mvc/simplexml/element/table",
+    "splunkjs/mvc/simplexml/element/visualization",
+    "splunkjs/mvc/simpleform/formutils",
+    "splunkjs/mvc/simplexml/eventhandler",
+    "splunkjs/mvc/simplexml/searcheventhandler",
+    "splunkjs/mvc/simpleform/input/dropdown",
+    "splunkjs/mvc/simpleform/input/radiogroup",
+    "splunkjs/mvc/simpleform/input/linklist",
+    "splunkjs/mvc/simpleform/input/multiselect",
+    "splunkjs/mvc/simpleform/input/checkboxgroup",
+    "splunkjs/mvc/simpleform/input/text",
+    "splunkjs/mvc/simpleform/input/timerange",
+    "splunkjs/mvc/simpleform/input/submit",
+    "splunkjs/mvc/searchmanager",
+    "splunkjs/mvc/savedsearchmanager",
+    "splunkjs/mvc/postprocessmanager",
+    "splunkjs/mvc/simplexml/urltokenmodel"
+    // Add comma-separated libraries and modules manually here, for example:
+    // ..."splunkjs/mvc/simplexml/urltokenmodel",
+    // "splunkjs/mvc/tokenforwarder"
+    ],
+    function(
+        mvc,
+        utils,
+        TokenUtils,
+        _,
+        $,
+        DashboardController,
+        LayoutView,
+        Dashboard,
+        PanelRef,
+        ChartElement,
+        EventElement,
+        HtmlElement,
+        ListElement,
+        MapElement,
+        SingleElement,
+        TableElement,
+        VisualizationElement,
+        FormUtils,
+        EventHandler,
+        SearchEventHandler,
+        DropdownInput,
+        RadioGroupInput,
+        LinkListInput,
+        MultiSelectInput,
+        CheckboxGroupInput,
+        TextInput,
+        TimeRangeInput,
+        SubmitButton,
+        SearchManager,
+        SavedSearchManager,
+        PostProcessManager,
+        UrlTokenModel
+
+        // Add comma-separated parameter names here, for example: 
+        // ...UrlTokenModel, 
+        // TokenForwarder
+        ) {
+
+        console.log("baidu: ", document.getElementById("baidu").src);
+        // Map 
+        function GetURLParameter(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            console.log("spageurl = ", sPageURL);
+            var sURLVariables = sPageURL.split("&");
+            for (i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split("=");
+                console.log("sParameterName = ", sParameterName);
+                if (sParameterName[0] == sParam) {
+                    return sParameterName[1];
+                }
+            }
+        }
+        var map = new BMap.Map("allmap");  // 创建Map实例
+        map.centerAndZoom("上海",15);      // 初始化地图,用城市名设置地图中心点
+		map.enableScrollWheelZoom();    //启用滚轮放大缩小，默认禁用
+		// map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+		map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+		map.addControl(new BMap.OverviewMapControl()); //添加默认缩略地图控件
+		var cr = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_TOP_RIGHT});   //设置版权控件位置
+		map.addControl(cr); //添加版权控件
+        // decode percent-encoding url parameters
+        var address = decodeURIComponent(GetURLParameter("address"));
+        if (address == "undefined") {
+            document.getElementById("text_").value = "";
+            document.getElementById("btn1").style.visibility = 'visible';
+            $('#btn1').on("click", function (e){
+                document.getElementById("message").style.color = "white";
+                processMap();
+            });
+        } else {
+            document.getElementById("text_").value = address;
+            document.getElementById("btn1").style.visibility = 'hidden';
+            processMap();
+        }
+        console.log("keyword = ", document.getElementById("text_").value);
+        function processMap() {
+            var localSearch = new BMap.LocalSearch(map);
+		    localSearch.enableAutoViewport();
+
+            map.clearOverlays();//清空原来的标注
+            var keyword = document.getElementById("text_").value;
+            console.log("address gonna search: ", keyword);
+            // if id exists, it will be a conflict
+			var infoSearch = new SearchManager({
+					id: "search" + keyword,
+					autostart: "true",
+					search: "index=lianjia name=" + keyword,
+					// earliest_time: '-7d@h',
+                	latest_time: 'now',
+			});
+			localSearch.setSearchCompleteCallback(async function (searchResult) {
+                var info = infoSearch.data("results");
+                console.log("address info: ", info.hasData());
+                var marker = null;
+                var ori_lat = map.getCenter().lat;
+                var ori_lng = map.getCenter().lng;
+				info.on("data", function() {
+                    var poi = searchResult.getPoi(0);
+                    // document.getElementById("result_").value = poi.point.lng + "," + poi.point.lat;
+                    console.log("point: ", poi.point);
+                    var new_lat = poi.point.lat;
+                    var new_lng = poi.point.lng;
+                    map.centerAndZoom(poi.point, 17);
+                    marker = new BMap.Marker(new BMap.Point(new_lng, new_lat));  // 创建标注，为要查询的地方对应的经纬度
+                    console.log("new lat: ", map.getCenter().lat, new_lat);
+                    console.log("new lng: ", map.getCenter().lng, new_lng);
+                    console.log("marker haha: ", marker);
+                    map.addOverlay(marker);
+
+                    // Indicates whether the results model has data
+                    console.log("Has data? ", info.hasData());
+
+                    resultArray = info.data().rows;
+                    var content = keyword + "<br/><br/>经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat + "<br/>";
+                    infoArray = resultArray[0][4].split(',');
+                    infoLen = infoArray.length;
+
+                    for (i = 0; i < infoLen; i++) {
+                        content += infoArray[i] + '<br/>';
+                    }
+                    var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" + content + "</p>");
+				    marker.addEventListener("click", function () { this.openInfoWindow(infoWindow); });
+                    // marker.openInfoWindow(infoWindow);
+                });
+                setTimeout(function(){
+                    console.log("lat: ", map.getCenter().lat, ori_lat);
+                    console.log("lng: ", map.getCenter().lng, ori_lng);
+                    console.log("marker: ", marker);
+                    if (map.getCenter().lat == ori_lat && map.getCenter().lng == ori_lng && marker == null) {
+                        document.getElementById("message").innerHTML = "木有查到该地址坐标！！！";
+                        document.getElementById("message").style.color = "red";
+                    }
+                }, 1000);
+				// marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+			});
+			localSearch.search(keyword);
+        }
+        // Map End
+        var pageLoading = true;
+
+
+        // 
+        // TOKENS
+        //
+        
+        // Create token namespaces
+        var urlTokenModel = new UrlTokenModel();
+        mvc.Components.registerInstance('url', urlTokenModel);
+        var defaultTokenModel = mvc.Components.getInstance('default', {create: true});
+        var submittedTokenModel = mvc.Components.getInstance('submitted', {create: true});
+
+        urlTokenModel.on('url:navigate', function() {
+            defaultTokenModel.set(urlTokenModel.toJSON());
+            if (!_.isEmpty(urlTokenModel.toJSON()) && !_.all(urlTokenModel.toJSON(), _.isUndefined)) {
+                submitTokens();
+            } else {
+                submittedTokenModel.clear();
+            }
+        });
+
+        // Initialize tokens
+        defaultTokenModel.set(urlTokenModel.toJSON());
+
+        function submitTokens() {
+            // Copy the contents of the defaultTokenModel to the submittedTokenModel and urlTokenModel
+            FormUtils.submitForm({ replaceState: pageLoading });
+        }
+
+        function setToken(name, value) {
+            defaultTokenModel.set(name, value);
+            submittedTokenModel.set(name, value);
+        }
+
+        function unsetToken(name) {
+            defaultTokenModel.unset(name);
+            submittedTokenModel.unset(name);
+        }
+
+        
+        
+        //
+        // SEARCH MANAGERS
+        //
+
+
+
+        //
+        // SPLUNK LAYOUT
+        //
+
+        $('header').remove();
+        new LayoutView({"hideFooter": false, "hideSplunkBar": false, "hideAppBar": false, "hideChrome": false})
+            .render()
+            .getContainerElement()
+            .appendChild($('.dashboard-body')[0]);
+
+        //
+        // DASHBOARD EDITOR
+        //
+
+        new Dashboard({
+            id: 'dashboard',
+            el: $('.dashboard-body'),
+            showTitle: true,
+            editable: true
+        }, {tokens: true}).render();
+
+
+        //
+        // VIEWS: VISUALIZATION ELEMENTS
+        //
+
+        // Initialize time tokens to default
+        if (!defaultTokenModel.has('earliest') && !defaultTokenModel.has('latest')) {
+            defaultTokenModel.set({ earliest: '0', latest: '' });
+        }
+
+        submitTokens();
+
+
+        //
+        // DASHBOARD READY
+        //
+
+        DashboardController.ready();
+        pageLoading = false;
+
+    }
+);
+// ]]>
+</script>
+</body>
+</html>

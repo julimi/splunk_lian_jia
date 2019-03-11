@@ -1,0 +1,62 @@
+<dashboard script="table_icons_inline.js, table_row_expansion.js" stylesheet="table_icons_inline.css">
+  <label>Shanghai houses price</label>
+  <row>
+    <panel>
+      <title>Shanghai Average Price</title>
+      <single>
+        <search>
+          <query>index="lianjia" second_hand_unit_price!=0
+| timechart avg(second_hand_unit_price) as average_price span=7d
+| eval average_price=round(average_price)
+| fillnull value=NULL</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">percent</option>
+        <option name="trendInterval">-1w</option>
+        <option name="underLabel">Compared to 1 week before</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Each District Price Comparison</title>
+      <table id="price_comparison">
+        <search>
+          <query>index="lianjia" second_hand_unit_price!=0
+| stats avg(second_hand_unit_price) as average_price by district_name
+| eval average_price=round(average_price)</query>
+          <earliest>-1y@y</earliest>
+          <latest>@y</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <!--<format type="color" field="average_price">-->
+        <!--  <colorPalette type="minMidMax" maxColor="#f70415" minColor="#0de022"></colorPalette>-->
+        <!--  <scale type="minMidMax"></scale>-->
+        <!--</format>-->
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="district_name">
+          <colorPalette type="sharedList"></colorPalette>
+          <scale type="category"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+</dashboard>

@@ -1,0 +1,12 @@
+<nav search_view="search" color="#65A637">
+  <view name="search" />
+  <view name="datasets" />
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+  <collection label="Lian Jia">
+    <view name="shanghai_houses_price" default='true'/>
+    <view name="jing_an_test" />
+    <view name="various_panels_for_yangpu_houses" />
+  </collection>
+</nav>
