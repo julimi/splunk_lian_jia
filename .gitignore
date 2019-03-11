@@ -1,0 +1,4 @@
+__pycache__/
+crawler/data/
+*.pyc
+*.so
