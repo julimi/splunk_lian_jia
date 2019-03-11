@@ -1,0 +1,4 @@
+# requests
+# sqlalchemy
+psycopg2>=2.6.2
+# pyquery
